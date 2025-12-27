@@ -44,8 +44,12 @@ namespace Cake.Core.IO
                 return Enumerable.Empty<Path>();
             }
 
+            // Expand environment variables in the pattern
+            var expandedPattern = EnvironmentVariableExpander.Expand(pattern.Pattern, _environment);
+            var globPattern = new GlobPattern(expandedPattern);
+
             // Parse the pattern into an AST.
-            var root = _parser.Parse(pattern, settings);
+            var root = _parser.Parse(globPattern, settings);
 
             // Visit all nodes in the parsed patterns and filter the result.
             return _visitor.Walk(root, settings)

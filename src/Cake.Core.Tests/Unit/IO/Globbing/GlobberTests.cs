@@ -5,6 +5,7 @@
 using System;
 using Cake.Core.IO;
 using Cake.Core.Tests.Fixtures;
+using Cake.Testing;
 using NSubstitute;
 using Xunit;
 
@@ -594,6 +595,133 @@ namespace Cake.Core.Tests.Unit.IO.Globbing
                 Assert.Equal(2, result.Length);
                 AssertEx.ContainsFilePath(result, "/Working/foobar.rs");
                 AssertEx.ContainsFilePath(result, "/Working/foobaz.rs");
+            }
+
+            [Fact]
+            public void Should_Expand_Unix_Style_Environment_Variables_In_Glob_Patterns()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("WORKING_DIR", "/Working");
+
+                // When
+                var result = fixture.Match("$WORKING_DIR/Foo/Bar/Qux.c");
+
+                // Then
+                Assert.Single(result);
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qux.c");
+            }
+
+            [Fact]
+            public void Should_Expand_Unix_Style_Environment_Variables_With_Braces_In_Glob_Patterns()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("BASE_DIR", "/Working");
+
+                // When
+                var result = fixture.Match("${BASE_DIR}/Foo/**/*.c");
+
+                // Then
+                Assert.Equal(4, result.Length);
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qux.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qex.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Baz/Qux.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Baz/Qux.c");
+            }
+
+            [Fact]
+            public void Should_Expand_Windows_Style_Environment_Variables()
+            {
+                // Given
+                var fixture = GlobberFixture.Windows();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("ROOT", "C:/Working");
+
+                // When
+                var result = fixture.Match("%ROOT%/Foo/Bar/Qux.c");
+
+                // Then
+                Assert.Single(result);
+                AssertEx.ContainsFilePath(result, "C:/Working/Foo/Bar/Qux.c");
+            }
+
+            [Fact]
+            public void Should_Expand_Multiple_Environment_Variables_In_Pattern()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("BASE", "/Working");
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("SUBDIR", "Foo");
+
+                // When
+                var result = fixture.Match("$BASE/$SUBDIR/**/*.c");
+
+                // Then
+                Assert.Equal(4, result.Length);
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qux.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qex.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Baz/Qux.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Baz/Qux.c");
+            }
+
+            [Fact]
+            public void Should_Support_Mixed_Windows_And_Unix_Environment_Variable_Syntax()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("BASE", "/Working");
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("DIR", "Foo");
+
+                // When
+                var result = fixture.Match("$BASE/%DIR%/Bar/*.c");
+
+                // Then
+                Assert.Equal(2, result.Length);
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qux.c");
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qex.c");
+            }
+
+            [Fact]
+            public void Should_Handle_Undefined_Environment_Variables_By_Leaving_Them_In_Pattern()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+
+                // When
+                var result = fixture.Match("$UNDEFINED_VAR/Foo/Bar/Qux.c");
+
+                // Then
+                Assert.Empty(result);
+            }
+
+            [Fact]
+            public void Should_Expand_Environment_Variables_With_Recursive_Wildcards()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("WORKING", "/Working");
+
+                // When
+                var result = fixture.Match("$WORKING/**/*.c");
+
+                // Then
+                Assert.True(result.Length > 0);
+                AssertEx.ContainsFilePath(result, "/Working/Foo/Bar/Qux.c");
+            }
+
+            [Fact]
+            public void Should_Expand_Environment_Variables_In_Directory_Glob_Patterns()
+            {
+                // Given
+                var fixture = GlobberFixture.UnixLike();
+                ((FakeEnvironment)fixture.Environment).SetEnvironmentVariable("ROOT", "/Working");
+
+                // When
+                var result = fixture.Match("$ROOT/Foo/Bar");
+
+                // Then
+                Assert.Single(result);
+                AssertEx.ContainsDirectoryPath(result, "/Working/Foo/Bar");
             }
         }
     }

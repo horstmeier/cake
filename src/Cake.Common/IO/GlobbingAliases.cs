@@ -20,6 +20,7 @@ namespace Cake.Common.IO
         /// Gets all files matching the specified pattern.
         /// </summary>
         /// <example>
+        /// <para>Basic glob pattern:</para>
         /// <code>
         /// var files = GetFiles("./**/Cake.*.dll");
         /// foreach (var file in files)
@@ -27,9 +28,18 @@ namespace Cake.Common.IO
         ///     Information("File: {0}", file);
         /// }
         /// </code>
+        /// <para>Using environment variables (Windows style):</para>
+        /// <code>
+        /// var logs = GetFiles("%TEMP%/logs/**/*.log");
+        /// </code>
+        /// <para>Using environment variables (Unix style):</para>
+        /// <code>
+        /// var sources = GetFiles("$HOME/src/**/*.cs");
+        /// var builds = GetFiles("${PROJECT_ROOT}/build/**/*.dll");
+        /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <returns>A <see cref="FilePathCollection" />.</returns>
         [CakeMethodAlias]
         [CakeAliasCategory("Files")]
@@ -57,7 +67,7 @@ namespace Cake.Common.IO
         /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <param name="settings">The globber settings.</param>
         /// <returns>A <see cref="FilePathCollection" />.</returns>
         [CakeMethodAlias]
@@ -82,7 +92,7 @@ namespace Cake.Common.IO
         /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <returns>A <see cref="DirectoryPathCollection" />.</returns>
         [CakeMethodAlias]
         [CakeAliasCategory("Directories")]
@@ -110,7 +120,7 @@ namespace Cake.Common.IO
         /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <param name="settings">The globber settings.</param>
         /// <returns>A <see cref="DirectoryPathCollection" />.</returns>
         [CakeMethodAlias]
@@ -135,7 +145,7 @@ namespace Cake.Common.IO
         /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <returns>A <see cref="PathCollection" />.</returns>
         [CakeMethodAlias]
         [CakeAliasCategory("Paths")]
@@ -163,7 +173,7 @@ namespace Cake.Common.IO
         /// </code>
         /// </example>
         /// <param name="context">The context.</param>
-        /// <param name="pattern">The glob pattern to match.</param>
+        /// <param name="pattern">The glob pattern to match. Supports environment variables using Windows (%VAR%) or Unix ($VAR, ${VAR}) syntax.</param>
         /// <param name="settings">The globber settings.</param>
         /// <returns>A <see cref="PathCollection" />.</returns>
         [CakeMethodAlias]
